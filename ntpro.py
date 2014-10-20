@@ -1,15 +1,20 @@
 #!/usr/bin/python3
+
+#ntpro = NLTK text processor
+
 import sys
 import tputil
 import tpcalc
 
 def help():
-  print('Unknown command. Usage: ' + sys.argv[0]
-   + '\n \t -h \t\t\t --- Show this help dialog'
-   + '\n \t add [filename]\t\t --- Add to database'
-   + '\n \t compile \t\t --- Process the database'
-   + '\n \t compare [filename] \t --- DO magic tricks'
-   + '\n \t purge \t\t\t --- Delete data- and knowledgebase')
+  print('\nUsage: ' + sys.argv[0] + ' (option)'
+  + '\n\nOptions:'
+  + '\n \t -h \t\t\t --- Show this help dialog'
+  + '\n \t add [filename]\t\t --- Add to database'
+  + '\n \t compile \t\t --- Process the database'
+  + '\n \t compare [filename] \t --- DO magic tricks'
+  + '\n \t purge \t\t\t --- Delete data- and knowledgebase'
+  + '\n')
 
   
 
