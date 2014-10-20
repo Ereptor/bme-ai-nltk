@@ -11,7 +11,6 @@ def help():
    + '\n \t compare [filename] \t --- DO magic tricks'
    + '\n \t purge \t\t\t --- Delete data- and knowledgebase')
 
-##
   
 
 # main function

@@ -15,8 +15,6 @@ def add_to_database(filename):
   database.close()
 
   
-  ##
-  
 def compile():
   database = open('database.dat', 'r')
   text = open('database.dat', 'r').read()
