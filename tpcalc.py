@@ -21,6 +21,7 @@ def compare(filename):
     word is obviously the words in the knowledgebase
     and occurance is the number of times it was in the text
     
+    
     '''
     
   

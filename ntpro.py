@@ -1,15 +1,17 @@
 #!/usr/bin/python3
 import sys
 import tputil
-
+import tpcalc
 
 def help():
   print('Unknown command. Usage: ' + sys.argv[0]
    + '\n \t -h \t\t\t --- Show this help dialog'
    + '\n \t add [filename]\t\t --- Add to database'
    + '\n \t compile \t\t --- Process the database'
-   + '\n \t compare [filename] \t --- DO magic tricks')
+   + '\n \t compare [filename] \t --- DO magic tricks'
+   + '\n \t purge \t\t\t --- Delete data- and knowledgebase')
 
+##
   
 
 # main function
@@ -18,8 +20,10 @@ if __name__ == '__main__':
     if sys.argv[1] == 'add':
       tputil.add_to_database(sys.argv[2])
     if sys.argv[1] == 'compare':
-      tputil.compare(sys.argv[2])
+      tpcalc.compare(sys.argv[2])
   elif sys.argv[1] == 'compile':
     tputil.compile()
+  elif sys.argv[1] == 'purge':
+    tputil.purge()
   else:
     help()
