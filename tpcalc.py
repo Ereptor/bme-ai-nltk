@@ -26,7 +26,7 @@ def compare(filename):
   for line in knowledgebase:
     data = str.split(line, '\t')
     word = data[0]
-    occurance = int(data[1])
+    occurence = int(data[1])
     
     '''
     Your job is basically implementing the comparison.

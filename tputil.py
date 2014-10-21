@@ -46,11 +46,9 @@ def purge():
   
 def split_database():
   database = open('database.dat', 'r')
-  
   datatext = database.read()
   
   parted = str.split(datatext, '\t\t\t')
-  
   
   return parted
   
