@@ -26,6 +26,7 @@ def compile():
     print("Error: No database found.")
     return
   
+  
   database = open('database.dat', 'r')
   text = open('database.dat', 'r').read()
   tokenized_text = nltk.word_tokenize(text)
@@ -36,7 +37,7 @@ def compile():
     knowledgebase.write(str(pairs[0]) + '\t' + str(pairs[1]) 
     + '\n')
     
-  
+
   
 def purge():
   os.remove('database.dat')
@@ -52,3 +53,10 @@ def split_database():
   
   
   return parted
+  
+def most_common(text, number):
+  tokenized_text = nltk.word_tokenize(text)
+  
+  return nltk.FreqDist(tokenized_text).most_common(number)
+  
+  

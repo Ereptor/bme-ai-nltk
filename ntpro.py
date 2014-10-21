@@ -25,9 +25,12 @@ if __name__ == '__main__':
       tputil.add_to_database(sys.argv[2])
     if sys.argv[1] == 'compare':
       tpcalc.compare(sys.argv[2])
-  elif sys.argv[1] == 'compile':
-    tputil.compile()
-  elif sys.argv[1] == 'purge':
-    tputil.purge()
+    else:
+      help()
+  elif len(sys.argv) == 2:
+    if sys.argv[1] == 'compile':
+      tputil.compile()
+    elif sys.argv[1] == 'purge':
+      tputil.purge()
   else:
     help()
