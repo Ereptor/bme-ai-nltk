@@ -11,7 +11,8 @@ def help():
   + '\n\nOptions:'
   + '\n \t -h \t\t\t --- Show this help dialog'
   + '\n \t add [filename]\t\t --- Add to database'
-  + '\n \t compile \t\t --- Process the database'
+  + '\n \t compile-database \t\t --- Process the database'
+  + '\n \t compile-books \t\t --- Compile text files in books folder'
   + '\n \t compare [filename] \t --- DO magic tricks'
   + '\n \t purge \t\t\t --- Delete data- and knowledgebase'
   + '\n')
@@ -23,13 +24,15 @@ if __name__ == '__main__':
   if len(sys.argv) > 2 :
     if sys.argv[1] == 'add':
       tputil.add_to_database(sys.argv[2])
-    if sys.argv[1] == 'compare':
+    elif sys.argv[1] == 'compare':
       tpcalc.compare(sys.argv[2])
     else:
       help()
   elif len(sys.argv) == 2:
-    if sys.argv[1] == 'compile':
-      tputil.compile()
+    if sys.argv[1] == 'compile-books':
+      tputil.compile_books()
+    elif sys.argv[1] == 'compile-database':
+      tputil.compile_database()
     elif sys.argv[1] == 'purge':
       tputil.purge()
   else:

@@ -1,63 +1,83 @@
 import os.path
 import nltk
+import json
 import numpy as NP
 from scipy import linalg as LA
 
 #tputil = text processor utilites
 
-def foo():
-  print('bar')
-  
+# the separator character in database.dat file
+DATABASE_SEPARATOR = '\t\t\t'
+KNOWLEDGEBASE_FILE = 'knowledgebase.dat'
+DATABASE_FILE = 'database.dat'
+
+# method to remove the file without raisin an error
+def remove_file(filepath):
+  try:
+    os.remove(filepath)
+  except OSError:
+    pass
+
+
+# adds a file to the database.dat file
 def add_to_database(filename):
   if not os.path.isfile(filename):
     print("Error: Input file not found.")
     return
     
-  database = open('database.dat', 'a')
+  database = open(DATABASE_FILE, 'a')
   importfile = open(filename, 'r')
   
   database.write(importfile.read())
-  database.write('\t\t\t')
+  database.write(DATABASE_SEPARATOR)
   
   importfile.close()
   database.close()
-
   
-def compile():
-  if not os.path.isfile('database.dat'):
+
+# compiles a single text and adds it to the knowledge base
+def compile_text(text, knowledgebase):
+  fingerprint = writing_fingerprint(text)
+  fingerprint_str = json.dumps(fingerprint)
+  knowledgebase.write(fingerprint_str+'\n')
+
+
+# compiles the database.dat file and adds it to the knowledge base  
+def compile_database():
+  if not os.path.isfile(DATABASE_FILE):
     print("Error: No database found.")
     return
   
+  knowledgebase = open(KNOWLEDGEBASE_FILE, 'a')
+  database = open(DATABASE_FILE, 'r')
+  rawtext = database.read()
+  texts = rawtext.split(DATABASE_SEPARATOR)
   
-  database = open('database.dat', 'r')
-  text = open('database.dat', 'r').read()
-  tokenized_text = nltk.word_tokenize(text)
-  fdist = nltk.FreqDist(tokenized_text)
-  
-  knowledgebase = open('knowledgebase.dat', 'w')
-  for pairs in fdist.most_common(70):
-    knowledgebase.write(str(pairs[0]) + '\t' + str(pairs[1]) 
-    + '\n')
+  for text in texts:
+    compile_text(text, knowledgebase)
     
+  knowledgebase.close()
+  database.close()
+
+
+# takes all the text files in the books folder and compiles them into knowledge base
+def compile_books():
+  knowledgebase = open(KNOWLEDGEBASE_FILE, 'a')
+  books_path = os.getcwd()+"\\books\\"
+  files = [ f for f in os.listdir(books_path) if os.path.isfile(os.path.join(books_path,f)) ]
+  for file_ in files:
+    book = open(books_path+file_,'r')
+    text = book.read()
+    book.close()
+    compile_text(text, knowledgebase)
+  
+  knowledgebase.close()
 
   
 def purge():
-  os.remove('database.dat')
-  os.remove('knowledgebase.dat')
-  
-  
-def split_database():
-  database = open('database.dat', 'r')
-  datatext = database.read()
-  
-  parted = str.split(datatext, '\t\t\t')
-  
-  return parted
-  
-def most_common(text, number):
-  tokenized_text = nltk.word_tokenize(text)
-  
-  return nltk.FreqDist(tokenized_text).most_common(number)
+  remove_file(DATABASE_FILE)
+  remove_file(KNOWLEDGEBASE_FILE)
+
   
 # it takes a normal string and creates a text identifying
 def writing_fingerprint(text):
