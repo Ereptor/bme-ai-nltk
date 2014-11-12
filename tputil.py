@@ -61,15 +61,12 @@ def compile_database():
 
 
 # takes all the text files in the books folder and compiles them into knowledge base
-
-## I cleaned up the code a little, should be more portable and
-## easier to understand
 def compile_books():
   knowledgebase = open(KNOWLEDGEBASE_FILE, 'a')
-  books_path = os.path.join(os.getcwd(), "books")
-  
-  for file in os.listdir(books_path): 
-    book = open(file,'r')
+  books_path = os.getcwd()+"\\books\\"
+  files = [ f for f in os.listdir(books_path) if os.path.isfile(os.path.join(books_path,f)) ]
+  for file_ in files:
+    book = open(books_path+file_,'r')
     text = book.read()
     book.close()
     compile_text(text, knowledgebase)
@@ -116,4 +113,22 @@ def text_matrix(tokenized_text):
 
   return matrix
 
-##PCA will be here
+# exact copy from https://github.com/alexland/kPCA/blob/master/PCA.py
+# good for now, until we don't figure out what it does.
+def pca(matrix, num_eigenvalues=None, EV=0, LDA=0):
+    D = NP.array(matrix)
+    if not (LDA & EV):
+      D, EV = NP.hsplit(D, [-1])
+      
+    # D -= D.mean(axis=0)
+    R = NP.corrcoef(D, rowvar=False)
+    m, n = R.shape
+    if num_eigenvalues:
+      num_eigenvalues = (m - num_eigenvalues, m-1)
+    eva, evc = LA.eigh(R, eigvals=num_eigenvalues)
+    NP.ascontiguousarray(evc)  
+    NP.ascontiguousarray(eva)
+    idx = NP.argsort(eva)[::-1]
+    evc = evc[:,idx]
+    eva = eva[idx]
+    return eva.tolist()
