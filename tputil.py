@@ -61,16 +61,21 @@ def compile_database():
 
 
 # takes all the text files in the books folder and compiles them into knowledge base
-def compile_books():
+def compile_texts():
   knowledgebase = open(KNOWLEDGEBASE_FILE, 'a')
-  books_path = os.getcwd()+"\\books\\"
-  files = [ f for f in os.listdir(books_path) if os.path.isfile(os.path.join(books_path,f)) ]
-  for file_ in files:
-    book = open(books_path+file_,'r')
-    text = book.read()
-    book.close()
-    compile_text(text, knowledgebase)
+  texts_path = os.path.join(os.getcwd(),"texts")
   
+  iterations = 0
+  for file in os.listdir(books_path):
+    iterations += 1
+    current_text = open(os.path.join(texts_path,file),'r')
+    text = current_text.read()
+    current_text.close()
+    compile_text(text, knowledgebase)
+    print(str(iterations) + ' text(s) processed.', end='\r')
+  
+  
+  print('\nKnowledgebase successfully compiled.')
   knowledgebase.close()
 
   
@@ -131,4 +136,5 @@ def pca(matrix, num_eigenvalues=None, EV=0, LDA=0):
     idx = NP.argsort(eva)[::-1]
     evc = evc[:,idx]
     eva = eva[idx]
+    
     return eva.tolist()
