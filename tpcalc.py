@@ -52,4 +52,5 @@ def compare(filename):
     
     
     
+    
   knowledgebase.close()
