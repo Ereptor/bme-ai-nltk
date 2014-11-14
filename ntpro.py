@@ -9,10 +9,12 @@ import tpcalc
 def help():
   print('\nUsage: ' + sys.argv[0] + ' (option)'
   + '\n\nOptions:'
-  + '\n \t -h \t\t\t --- Show this help dialog'
+  + '\n \t help \t\t\t --- Show this help dialog'
+  + '\n'
   + '\n \t add [filename]\t\t --- Add to database'
-  + '\n \t compile-database \t\t --- Process the database'
-  + '\n \t compile-texts \t\t --- Compile text files in \'texts\' folder'
+  + '\n \t add-texts \t\t --- Add text files to database in \'texts\' folder'
+  + '\n \t compile-database \t --- Process the database'
+  + '\n \t plot \t\t\t --- Show graph representing the distribution of datapoints.'
   + '\n \t compare [filename] \t --- Do magic tricks'
   + '\n \t purge \t\t\t --- Delete data- and knowledgebase'
   + '\n')
@@ -29,11 +31,17 @@ if __name__ == '__main__':
     else:
       help()
   elif len(sys.argv) == 2:
-    if sys.argv[1] == 'compile-texts':
-      tputil.compile_texts()
+    if sys.argv[1] == 'add-texts':
+      tputil.add_texts()
     elif sys.argv[1] == 'compile-database':
       tputil.compile_database()
     elif sys.argv[1] == 'purge':
       tputil.purge()
+    elif sys.argv[1] == 'plot':
+      tputil.plotPCA()
+    elif sys.argv[1] == 'full-setup':
+      tputil.purge()
+      tputil.add_texts()
+      tputil.compile_database()
   else:
     help()
