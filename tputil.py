@@ -118,6 +118,15 @@ def get_count(text, word):
   
   return freq[word]
 
+# input is a numpy matrix
+def center_point(points):
+  center = points[0]
+  for point in points[1:]:
+    center += point
+  center /= len(points)
+  return center
+  
+
 #this filters the punctuation!
 # returns the [number] most common words in [text]
 def most_common(text, number):
@@ -211,12 +220,15 @@ def plotPCA():
     matrix2 = numpy.empty((70,3))
     for i in range(0,70):
       matrix2[i] = matrix[5]
+      
+    center = center_point(matrix[:5])
     
     ax.plot(matrix[:,0], matrix[:,1], matrix[:,2], 'o', c='b')
     ax.plot(matrix2[:,0], matrix2[:,1], matrix2[:,2], 'o', c='r')
+    ax.plot([center[0]], [center[1]], [center[2]], 'o', c='g')
     
     ax.view_init(45,-45)
   
     pyplot.show()
-  except:
-    print('[ERROR]: Not enough datapoints for analysis, please add more reference texts.')
+  except Exception as exc:
+    print('[ERROR]: Not enough datapoints for analysis, please add more reference texts.',exc)
