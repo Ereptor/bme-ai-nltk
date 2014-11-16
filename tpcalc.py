@@ -1,7 +1,12 @@
 import os.path
 import tputil
+import numpy
+from matplotlib.mlab import PCA
 
 #tpcalc = text processor calculations
+
+MAX_DIST_PRC = 85
+AVG_DIST_PRC = 90
 
 def compare(filename):
   if not os.path.isfile('knowledgebase.dat'):
@@ -9,48 +14,34 @@ def compare(filename):
     + '  compile first.')
     return
     
-  if not os.path.isfile('database.dat'):
-    print('Error: No database found.')
-    return
-    
-  if not os.path.isfile(filename):
-    print("Error: Input file not found.")
+#  if not os.path.isfile(filename):
+#    print("Error: Input file not found.")
     #return
     
-    
-  knowledgebase = open('knowledgebase.dat', 'r')
+  # for now, until we write a better one
+  text_count = tputil.get_text_count()
+  knowledgematrix = numpy.empty((text_count, tputil.MOST_COMMON_NUMBER))
   
-  texts = tputil.split_database()
+  for i in range(0,text_count):
+    knowledgematrix[i] = tputil.get_text_frequency(i)
   
+  result_pca = PCA(knowledgematrix) # this will be moved to tputil
+  goodpoints = result_pca.Y[:5]
+  center = tputil.center_point(goodpoints)
+  new_point = result_pca.Y[5] # new, because this should be the one loaded from the file
+  dist_average = 0
+  dist_max = 0
+  for point in goodpoints:
+    dist = tputil.dist(center, point)
+    dist_average += dist
+    dist_max = max(dist_max, dist)
   
-  for line in knowledgebase:
-    data = str.split(line, '\t')
-    word = data[0]
-    occurence = int(data[1])
-    
-    '''
-    Your job is basically implementing the comparison.
-    'knowledgebase' contains the 70 most common words in
-    all the texts. Currently it also contains random
-    garbage like punctuation and such, but I'll
-    tune it, don't worry about that.
-    
-    word = the 'words' in the knowledgebase
-    occurance = the number of times it was in the text
-    
-    As far as I know this algorithm doesn't require
-    labels and it doesn't need to know who wrote what,
-    so texts that have the same author automatically 
-    gravitate towards each other.
-    
-    the tputil.split_database() function returns all
-    the previously added texts in an array. The last
-    object is an empty(ish) string, I'll clean it up once
-    I got some sleep. Feel free to use it as it is now, its
-    interface won't change.
-    '''
-    
-    
-    
-    
-  knowledgebase.close()
+  dist_average /= len(goodpoints)
+  
+  dist_new = tputil.dist(center, new_point)
+  
+  dist_single_prc = (dist_max - dist_average) / (AVG_DIST_PRC-MAX_DIST_PRC)
+  
+  act_prc = max(100-(dist_new / dist_single_prc),0)
+  print('The text is %f to be written by the same author'%act_prc)
+  

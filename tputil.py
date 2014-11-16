@@ -125,6 +125,12 @@ def center_point(points):
     center += point
   center /= len(points)
   return center
+
+
+def dist(point_a, point_b):
+  vect = point_a - point_b
+  dist = numpy.linalg.norm(vect)
+  return dist
   
 
 #this filters the punctuation!
