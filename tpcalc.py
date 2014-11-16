@@ -5,8 +5,8 @@ from matplotlib.mlab import PCA
 
 #tpcalc = text processor calculations
 
-MAX_DIST_PRC = 85
-AVG_DIST_PRC = 90
+#MAX_DIST_PRC = 85
+AVG_DIST_PRC = 85
 
 def compare(filename):
   if not os.path.isfile('knowledgebase.dat'):
@@ -30,18 +30,18 @@ def compare(filename):
   center = tputil.center_point(goodpoints)
   new_point = result_pca.Y[5] # new, because this should be the one loaded from the file
   dist_average = 0
-  dist_max = 0
+#  dist_max = 0
   for point in goodpoints:
     dist = tputil.dist(center, point)
     dist_average += dist
-    dist_max = max(dist_max, dist)
+#    dist_max = max(dist_max, dist)
   
   dist_average /= len(goodpoints)
   
   dist_new = tputil.dist(center, new_point)
   
-  dist_single_prc = (dist_max - dist_average) / (AVG_DIST_PRC-MAX_DIST_PRC)
+  dist_single_prc = (dist_average) / (100-AVG_DIST_PRC)
   
-  act_prc = max(100-(dist_new / dist_single_prc),0)
+  act_prc = min(max(100-(dist_new / dist_single_prc),0),100)
   print('The text is %f to be written by the same author'%act_prc)
   
