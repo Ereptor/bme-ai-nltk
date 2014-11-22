@@ -1,9 +1,8 @@
 #tpcalc = text processor calculations
 
 import os.path
+import sys
 import tputil
-import numpy
-from matplotlib.mlab import PCA
 
 
 
@@ -29,28 +28,18 @@ AVG_DIST_PRC = 85
 
 def compare(filename):
   if not os.path.isfile('knowledgebase.dat'):
-    print('[ERROR]: No knowledgebase present, please'  
-    + '  compile first.')
+    print('[ERROR]: No knowledgebase present, please' + '  compile first.')
     sys.exit(tputil.NO_KNOWLEDGEBASE)
   elif not os.path.isfile(filename):
     print('[ERROR]: File not found')
     sys.exit(tputil.FILE_NOT_FOUND)
-    
-  if not os.path.isfile(filename):
-    print("Error: Input file not found.")
-    return
   
-  text_count = tputil.get_text_count()
-  knowledgematrix = numpy.empty((text_count, tputil.MOST_COMMON_NUMBER))
+  knowledgebase = tputil.get_knowledgebase()
   
-  inputtext = open(filename).read()
+  new_point = tputil.get_file_frequency(filename, knowledgebase[tputil.KNOWLEDGEBASE_KEY_WORDS]) # new, because this should be the one loaded from the file
   
-  for i in range(0,text_count):
-    knowledgematrix[i] = tputil.get_text_frequency(i)
-  
-  goodpoints = knowledgematrix
+  goodpoints = knowledgebase[tputil.KNOWLEDGEBASE_KEY_FREQS]
   center = tputil.center_point(goodpoints)
-  new_point = tputil.get_frequency(inputtext) # new, because this should be the one loaded from the file
   dist_average = 0
 #  dist_max = 0
   for point in goodpoints:

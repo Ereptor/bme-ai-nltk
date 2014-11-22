@@ -4,8 +4,8 @@ import os
 import nltk
 import numpy
 import sys
+import json
 
-from matplotlib.mlab import PCA
 import matplotlib.pyplot as pyplot
 import matplotlib
 from mpl_toolkits.mplot3d import axes3d
@@ -16,6 +16,9 @@ KNOWLEDGEBASE_FILE = 'knowledgebase.dat'
 DATABASE_FILE = 'database.dat'
 FINGERPRINT_FOLDER = 'fingerprint'
 MOST_COMMON_NUMBER = 50
+
+KNOWLEDGEBASE_KEY_WORDS = 'keywords'
+KNOWLEDGEBASE_KEY_FREQS = 'freqs'
 
 # error numbers
 FILE_NOT_FOUND = 11
@@ -32,21 +35,28 @@ def remove_file(filepath):
 
 
 # adds a file to the database.dat file
-def add_to_database(filename):
+def add_to_database(filename, database=None):
   if not os.path.isfile(filename):
     print("[ERROR]: Input file not found.")
     sys.exit(FILE_NOT_FOUND) # Finish with file not found error
-    
-  database = open(DATABASE_FILE, 'a')
+  
+  close_database = False
+  if database is None:
+    close_database = True
+    database = open(DATABASE_FILE, 'a')
+  
   importfile = open(filename, 'r')
   
   database.write(importfile.read())
   database.write(DATABASE_SEPARATOR)
   
-  print('File successfully added to database.')
-  
   importfile.close()
-  database.close()
+  
+  if close_database:
+    database.close()
+    
+  print('\''+os.path.basename(filename)+'\' successfully added to database.')
+
 
 
 # adds the text files in ./texts folder to the database
@@ -57,19 +67,10 @@ def add_texts():
   iterator = 0
   for text_name in os.listdir(text_folder):
     iterator += 1
-    text = open(os.path.join(text_folder, text_name))
-    
-    
-    if(os.path.getsize(DATABASE_FILE) > 0):
-      #write separator if there was text before
-      database.write(DATABASE_SEPARATOR)  
-    database.write(text.read())
-    
-    text.close()
+    add_to_database(os.path.join(text_folder, text_name), database)
     
     # won't be seen unless excessive amount of files are added, but it doesn't hurt
     print('%d text added to database file.'%(iterator), end='\r')
-
   
   if(iterator != 0):  
     print('Text(s) successfully added to database file.')
@@ -87,63 +88,70 @@ def compile_database():
     print("[ERROR]: No database found. Please run compile-database first.")
     sys.exit(NO_DATABASE) # Finish with database error
   
-  # remove previous knowledgebase to avoid duplicates
-  remove_file(KNOWLEDGEBASE_FILE)
-  
-  knowledgebase = open(KNOWLEDGEBASE_FILE, 'a')
   database = open(DATABASE_FILE, 'r')
   rawtext = database.read()
-  texts = rawtext.split(DATABASE_SEPARATOR)
+  database.close()
   
-  # write the most common words in all the texts as a header for knowledgebase
-  keys = most_common(rawtext, MOST_COMMON_NUMBER)
+  texts = rawtext.split(DATABASE_SEPARATOR)  
+  freq = freqdist_text(rawtext)
+  
+  # the dict, which will store our knowledge about the author
+  knowledgebase = {}
+  
+  # collect the most common words
+  keys = freq.most_common(MOST_COMMON_NUMBER)
   keywords = numpy.empty(MOST_COMMON_NUMBER, dtype=object)
   
   for i in range(0,MOST_COMMON_NUMBER):
     keywords[i] = keys[i][0]
-    knowledgebase.write(str(keywords[i]) + '\t')
-  knowledgebase.write('\n')
   
+  knowledgebase[KNOWLEDGEBASE_KEY_WORDS] = keywords.tolist()
+  
+  knowledge_freqs = []
   
   iterator = 0
   for text in texts:
     # length counts punctuation, but its amount
     # should be about the same in all texts
     length = len(text)
+    
+    if length > 0:
+      iterator += 1
+      frequency = get_text_frequency(text, keywords)
       
-    iterator += 1
-    for keyword in keywords:
-      count = get_count(text,keyword)
-      
-      frequency = 100*count/length # frequency is a percentage
-      knowledgebase.write(str(frequency) + '\t')
+      knowledge_freqs.append(frequency.tolist())
+      print('%d text(s) processed.'%iterator, end='\r')
+  
+  knowledgebase[KNOWLEDGEBASE_KEY_FREQS] = knowledge_freqs
 
-    knowledgebase.write('\n')
-    print('%d text(s) processed.'%iterator, end='\r')
-
+  # remove previous knowledgebase to avoid duplicates
+  knowledgebase_file = open(KNOWLEDGEBASE_FILE, 'w')
+  
+  json.dump(knowledgebase, knowledgebase_file)
+  
+  knowledgebase_file.close()
+  
   print('%d text(s) successfully processed.'%(iterator))
   
-  knowledgebase.close()  
-  database.close()
-
-# returns the number of occurences of [word] in [text]
-def get_count(text, word):
+def get_knowledgebase():
+  if not os.path.isfile(KNOWLEDGEBASE_FILE):
+    print("[ERROR]: No database found. Please run compile-database first.")
+    sys.exit(NO_KNOWLEDGEBASE) # Finish with knowledge error
+    
+  knowledgebase_file = open(KNOWLEDGEBASE_FILE, 'r')
+  knowledgebase = json.load(knowledgebase_file)
+  knowledgebase_file.close()
+  
+  freqs = knowledgebase[KNOWLEDGEBASE_KEY_FREQS];
+  knowledgebase[KNOWLEDGEBASE_KEY_FREQS] = numpy.array(freqs)
+  
+  return knowledgebase
+  
+def freqdist_text(text):
   word_tokenizer = nltk.RegexpTokenizer(r'\w\w+') # throws away one letter words
-  
   tokens = word_tokenizer.tokenize(text.lower())
   freq = nltk.FreqDist(tokens)
-  
-  return freq[word]
-
-#this filters the punctuation!
-# returns the [number] most common words in [text]
-def most_common(text, number):
-  word_tokenizer = nltk.RegexpTokenizer(r'\w\w+') # again, no one letter words allowed
-  
-  tokens = word_tokenizer.tokenize(text.lower())
-  freq = nltk.FreqDist(tokens)
-  
-  return freq.most_common(number)
+  return freq
 
 
 def purge():
@@ -153,83 +161,27 @@ def purge():
   print('Files successfully deleted.')
 
 
-# Returns the array representing the [index]th text in the knowledgebase
-# indexing starts with 0
-def get_text_frequency(row):
-  if not os.path.isfile(KNOWLEDGEBASE_FILE):
-    sys.exit(NO_KNOWLEDGEBASE)
-    
-  knowledgebase = open(KNOWLEDGEBASE_FILE, 'r')
-  
-  # range[0-row) skips, first row is not frequency related
-  for i in range(0,row+1):
-    knowledgebase.readline()
-    
-  frequency = knowledgebase.readline().split('\t')
-  frequency.pop() # last element is empty (tab without number following it)
-  
-  knowledgebase.close()
-  
-  return frequency
 
-# naming is confusing, it's supposed to be used
-# for the text that's to be compared to our knowledgebase
-def get_frequency(text):
-  if not os.path.isfile(KNOWLEDGEBASE_FILE):
-    print('[ERROR]: Knowledgebase not found. Please compile database first.')
-    sys.exit(NO_KNOWLEDGEBASE)
-    
-  knowledgebase = open(KNOWLEDGEBASE_FILE)
-  
-  keywords = knowledgebase.read().split('\t')
-  knowledgebase.close()
-  
-  frequency = numpy.empty(MOST_COMMON_NUMBER)
+# returns the frequency of keywords in text
+def get_text_frequency(text, keywords):
   length = len(text)
-  for i in range(0,MOST_COMMON_NUMBER):
-    frequency[i] = 100*get_count(text, keywords[i])/length
-  
+  if length > 0:
+    frequency = numpy.empty(MOST_COMMON_NUMBER)
+    freq = freqdist_text(text)
+    for i in range(0,MOST_COMMON_NUMBER):
+      frequency[i] = 100*freq[keywords[i]]/length
   
   return frequency
-  
 
 
-# Returns the number of texts used for reference in the knowledgebase
-def get_text_count():
-  if not os.path.isfile(KNOWLEDGEBASE_FILE):
-    sys.exit(NO_KNOWLEDGEBASE)
-  
-  knowledgebase = open(KNOWLEDGEBASE_FILE, 'r')
-  
-  iterator = -1 # yet again, first line in knowledgebase is not text data
-  while knowledgebase.readline():
-    iterator += 1
-  
-  knowledgebase.close()
-  
-  return iterator
 
+# opens a file and returns it's word frequency
+def get_file_frequency(filepath, keywords):
+  input_file = open(filepath)
+  input_frequency = get_text_frequency(input_file.read(), keywords)
+  input_file.close()
+  return input_frequency
 
-# Returns the index of the keyword in the knowledgebase
-# If the word is not part of the 50 most common words it returns -1
-# Note: not used in live code, left in to provide the interface
-def get_word_index(word):
-  if not os.path.isfile(KNOWLEDGEBASE_FILE):
-    sys.exit(NO_KNOWLEDGEBASE)
-  
-  knowledgebase = open(KNOWLEDGEBASE_FILE, 'r')
-  keywords = knowledgebase.readline().split('\t')
-  
-  index = -1
-  
-  for i in range(0,MOST_COMMON_NUMBER):
-    if(keywords[i] == word):
-      index = i
-      break
-
-  knowledgebase.close()
-  
-  return index    
 
 # input is a numpy matrix
 # determines the 'center' of array of vectors
@@ -264,34 +216,26 @@ def PCA_result(data):
 # Switched back to original (truncated) vectors from
 # PCA, oddly enough it seems to be more accurate
 def plot(filename):
-    # There was a try/except block here, but the possible error message is
-    # more informative than a generic error text
-    matrix = numpy.empty((get_text_count() + 1,MOST_COMMON_NUMBER))
-    matrix2 = numpy.empty((2,MOST_COMMON_NUMBER)) #ax.plot requires at least two rows
-    
-    figure = pyplot.figure()
-    ax = figure.add_subplot(111, projection = '3d')
-    
-    input_frequency = get_frequency(open(filename).read())
-    
-    for i in range(0, get_text_count()):
-      matrix[i] = get_text_frequency(i)
-    
-    matrix[get_text_count()] = input_frequency
-    #data = PCA_result(matrix)
-    #data[0] = data[1] # amateur solution, but the first PCA result is *always* off
-    
-    for i in range(0,2):
-      matrix2[i] = matrix[get_text_count()]
-    
-    ax.set_xlabel('Most common word percentage')
-    ax.set_ylabel('Second most common word percentage')
-    ax.set_zlabel('Third most common word percentage')
-    
-    ax.plot(matrix[:,0], matrix[:,1], matrix[:,2], 'o', c='b')
-    ax.plot(matrix2[:,0], matrix2[:,1], matrix2[:,2], 'o', c='r')
-    
-    ax.view_init(45,-45)
+  knowledgebase = get_knowledgebase()
   
-    pyplot.show()
+  matrix = knowledgebase[KNOWLEDGEBASE_KEY_FREQS];
+  
+  figure = pyplot.figure()
+  ax = figure.add_subplot(111, projection = '3d')
+  
+  input_frequency = get_file_frequency(filename, knowledgebase[KNOWLEDGEBASE_KEY_WORDS])
+  
+  #data = PCA_result(matrix)
+  #data[0] = data[1] # amateur solution, but the first PCA result is *always* off
+  
+  ax.set_xlabel('Most common word percentage')
+  ax.set_ylabel('Second most common word percentage')
+  ax.set_zlabel('Third most common word percentage')
+  
+  ax.plot(matrix[:,0], matrix[:,1], matrix[:,2], 'o', c='b')
+  ax.plot([input_frequency[0]], [input_frequency[1]], [input_frequency[2]], 'o', c='r') #ax.plot expects an array, not a single item
+  
+  ax.view_init(45,-45)
+
+  pyplot.show()
  
