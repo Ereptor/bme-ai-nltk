@@ -36,7 +36,7 @@ if __name__ == '__main__':
     else:
       help()
   elif len(sys.argv) == 2:
-    if sys.argv[1] == 'add-texts':
+    if sys.argv[1] == 'add-fingerprint':
       tputil.add_texts()
     elif sys.argv[1] == 'compile-database':
       tputil.compile_database()

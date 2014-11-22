@@ -36,26 +36,21 @@ def compare(filename):
     print('[ERROR]: File not found')
     sys.exit(tputil.FILE_NOT_FOUND)
     
+  if not os.path.isfile(filename):
+    print("Error: Input file not found.")
+    return
   
-#  if not os.path.isfile(filename):
-#    print("Error: Input file not found.")
-    #return
-    
-  # for now, until we write a better one
   text_count = tputil.get_text_count()
   knowledgematrix = numpy.empty((text_count, tputil.MOST_COMMON_NUMBER))
   
   inputtext = open(filename).read()
   
-  
   for i in range(0,text_count):
     knowledgematrix[i] = tputil.get_text_frequency(i)
   
-  #goodpoints = tputil.PCA_result(knowledgematrix) # this will be moved to tputil
-  goodpoints = knowledgematrix[:4]
+  goodpoints = knowledgematrix
   center = tputil.center_point(goodpoints)
   new_point = tputil.get_frequency(inputtext) # new, because this should be the one loaded from the file
-  #new_point = knowledgematrix[0]
   dist_average = 0
 #  dist_max = 0
   for point in goodpoints:
