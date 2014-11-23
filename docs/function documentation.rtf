@@ -1,0 +1,57 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1343\cocoasubrtf160
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww14200\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0\fs24 \cf0 TPUTIL\
+\
+remove_file(filepath):\
+	removes the file from [filepath] without possibly raising an error.\
+\
+add_to_database(filename, database=None):\
+	adds the texts from [filename] to the database file. If a database already exists it can take it as a second parameter.\
+\
+add_texts():\
+	adds the texts in the fingerprint folder to the database.\
+\
+compile_database():\
+	compiles the database file into a knowledgebase file.\
+\
+get_knowledgebase():\
+	returns the knowledgebase.\
+\
+freqdist_text(text):\
+	creates and returns the distribution statistics from text using the nltk library.\
+\
+purge():\
+	removes the database and knowledgebase files.\
+\
+get_text_frequency(text, keywords):\
+	processes and returns the [text]\'92s distribution in relation to [keywords] into the format of the knowledgebase file.\
+\
+center_point(points):\
+	returns the centre of Vector array [points].\
+\
+dist(point_a, point_b):\
+	returns the distance between Vectors [point_a] and [point_b].\
+\
+PCA_result(data):\
+	returns [data] matrix projected into a PCA space. (Legacy code)\
+\
+plot(filename):\
+	graphically shows the distribution of [filename]\'92s text in relation to the database texts.\
+\
+\
+TPCALC\
+\
+compare(filename):\
+	calculates and prints the stylistic similarities between the known texts of knowledgebase and the text of [filename].\
+\
+\
+\
+\
+\
+\
+\
+}
