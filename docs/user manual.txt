@@ -32,8 +32,8 @@ A megadott fájlt az adatbázishoz adja. Az adatbázis azonos szerző referencia
 ntpro add-fingerprint
 Az alapértelmezésben 'fingerprint' mappában összegyűjtött fájlokat adja az adatbázishoz
 
-ntpro compile-database
-Az adatbázisban található szövegeket dolgozza fel a program által használt formátumra. Ez a lépés szükséges az összehasonlításhoz, ezen opció lefutása nélkül indított összehasonlítások hibaüzenettel leállnak.
+ntpro compile-database {-sm {nyelv}}
+Az adatbázisban található szövegeket dolgozza fel a program által használt formátumra. Ez a lépés szükséges az összehasonlításhoz, ezen opció lefutása nélkül indított összehasonlítások hibaüzenettel leállnak. Az -sm kapcsolóval beállítható a stopword szűrés, az utána opcionálisan megadott nyelv pedig megadja, hogy ezek milyen nyelvűek lesznek. Alapértelmezésben ez ‘english’, a magyar nyelv kiválasztásához ‘hungarian’-t kell megadni.
 
 ntpro compare [fájlnév]
 Összehasonlítja az adatbázisból lefordított szövegeket és a megadott fájlban található szöveget, majd egy becslést ad azok stilisztikai egyezésére. Egy mű általában 70-75% feletti egyezésnél azonos szerzőtől tartozónak tekinthető, amennyiben ez nem egy gyökeresen különböző írás, mint a tudásbázisban levő szövegek.
