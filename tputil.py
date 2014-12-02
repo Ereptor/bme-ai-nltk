@@ -9,6 +9,7 @@ import json
 import matplotlib.pyplot as pyplot
 import matplotlib
 from mpl_toolkits.mplot3d import axes3d
+from nltk.corpus import stopwords
 
 # configurable constants in 
 DATABASE_SEPARATOR = '\t\t\t'
@@ -43,9 +44,9 @@ def add_to_database(filename, database=None):
   close_database = False
   if database is None:
     close_database = True
-    database = open(DATABASE_FILE, 'a')
+    database = open(DATABASE_FILE, 'a',encoding='utf-8')
   
-  importfile = open(filename, 'r')
+  importfile = open(filename, 'r',encoding='utf-8')
   
   database.write(importfile.read())
   database.write(DATABASE_SEPARATOR)
@@ -62,7 +63,7 @@ def add_to_database(filename, database=None):
 # adds the text files in ./texts folder to the database
 def add_texts():
   text_folder = os.path.join(str(os.getcwd()), FINGERPRINT_FOLDER)
-  database = open(DATABASE_FILE, 'a')
+  database = open(DATABASE_FILE, 'a',encoding='utf-8')
   
   iterator = 0
   for text_name in os.listdir(text_folder):
@@ -83,17 +84,17 @@ def add_texts():
   
 
 # compiles the database.dat file and adds it to the knowledge base  
-def compile_database():
+def compile_database(stop_mode = False, language = 'english'):
   if not os.path.isfile(DATABASE_FILE):
     print("[ERROR]: No database found. Please run compile-database first.")
     sys.exit(NO_DATABASE) # Finish with database error
   
-  database = open(DATABASE_FILE, 'r')
+  database = open(DATABASE_FILE, 'r',encoding='utf-8')
   rawtext = database.read()
   database.close()
   
   texts = rawtext.split(DATABASE_SEPARATOR)  
-  freq = freqdist_text(rawtext)
+  freq = freqdist_text(rawtext, stop_mode, language)
   
   # the dict, which will store our knowledge about the author
   knowledgebase = {}
@@ -125,7 +126,7 @@ def compile_database():
   knowledgebase[KNOWLEDGEBASE_KEY_FREQS] = knowledge_freqs
 
   # remove previous knowledgebase to avoid duplicates
-  knowledgebase_file = open(KNOWLEDGEBASE_FILE, 'w')
+  knowledgebase_file = open(KNOWLEDGEBASE_FILE, 'w',encoding='utf-8')
   
   json.dump(knowledgebase, knowledgebase_file)
   
@@ -138,7 +139,7 @@ def get_knowledgebase():
     print("[ERROR]: No database found. Please run compile-database first.")
     sys.exit(NO_KNOWLEDGEBASE) # Finish with knowledge error
     
-  knowledgebase_file = open(KNOWLEDGEBASE_FILE, 'r')
+  knowledgebase_file = open(KNOWLEDGEBASE_FILE, 'r',encoding='utf-8')
   knowledgebase = json.load(knowledgebase_file)
   knowledgebase_file.close()
   
@@ -147,10 +148,16 @@ def get_knowledgebase():
   
   return knowledgebase
   
-def freqdist_text(text):
+def freqdist_text(text, stop_mode = False, language = 'english'):
   word_tokenizer = nltk.RegexpTokenizer(r'\w\w+') # throws away one letter words
-  tokens = word_tokenizer.tokenize(text.lower())
+  
+  if(stop_mode):
+    stop = stopwords.words(language)
+    filtered_text = [w for w in text.lower().split() if w not in stop]
+    text = ''.join(filtered_text)
+  tokens = word_tokenizer.tokenize(text)
   freq = nltk.FreqDist(tokens)
+  
   return freq
 
 
@@ -177,7 +184,7 @@ def get_text_frequency(text, keywords):
 
 # opens a file and returns it's word frequency
 def get_file_frequency(filepath, keywords):
-  input_file = open(filepath)
+  input_file = open(filepath,encoding='utf-8')
   input_frequency = get_text_frequency(input_file.read(), keywords)
   input_file.close()
   return input_frequency
