@@ -10,6 +10,17 @@ Természetesen a módszer nem tökéletes, anomáliák előfordulhatnak és elő
 
 -------------------------------------------------------------------------------------------------------
 
+Telepítés
+
+A program futtatásához Python3 és az alábbi modulok szükségesek:
+	nltk
+	numpy
+	matplotlib
+
+A Python3 program és a modulok telepítéséhez instrukciók a https://www.python.org/ oldalon érhetők el.
+
+-------------------------------------------------------------------------------------------------------
+
 Használat
 
 A program a következő parancsok segítségével vezérelhető:

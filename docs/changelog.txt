@@ -1,0 +1,10 @@
+1.1 - 2014.12.02.
+Added the specific words to axis labels for plot function
+Added stop word option for compile-database function
+Enforce UTF-8 encoding for file operations to avoid unexpected errors
+Documentation:
+	Added install instructions to user manual (hungarian)
+	Added general project documentation for comments (hungarian)
+
+1.0
+Initial release

@@ -15,14 +15,14 @@ add_to_database(filename, database=None):\
 add_texts():\
 	adds the texts in the fingerprint folder to the database.\
 \
-compile_database():\
-	compiles the database file into a knowledgebase file.\
+compile_database(stop_mode=False, language=\'91english\'92):\
+	compiles the database file into a knowledgebase file. Option for toggling stop_mode on which filters common words that are non-descriptive of the author\'92s style. Default stop words are from the english dictionary, other supported languages can be given as parameter or it quits without a handled error message.\
 \
 get_knowledgebase():\
 	returns the knowledgebase.\
 \
-freqdist_text(text):\
-	creates and returns the distribution statistics from text using the nltk library.\
+freqdist_text(text, stop_mode=False):\
+	creates and returns the distribution statistics from text using the nltk library. Stop word mode is defaulted to off.\
 \
 purge():\
 	removes the database and knowledgebase files.\
@@ -40,7 +40,7 @@ PCA_result(data):\
 	returns [data] matrix projected into a PCA space. (Legacy code)\
 \
 plot(filename):\
-	graphically shows the distribution of [filename]\'92s text in relation to the database texts.\
+	graphically shows the distribution of [filename]\'92s text in relation to the database texts. Shows the three most common word\'92s distribution in the database on the axes.\
 \
 \
 TPCALC\
