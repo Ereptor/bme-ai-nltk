@@ -235,9 +235,9 @@ def plot(filename):
   #data = PCA_result(matrix)
   #data[0] = data[1] # amateur solution, but the first PCA result is *always* off
   
-  ax.set_xlabel('Most common word percentage')
-  ax.set_ylabel('Second most common word percentage')
-  ax.set_zlabel('Third most common word percentage')
+  ax.set_xlabel(str('Most common word percentage\n' + knowledgebase[KNOWLEDGEBASE_KEY_WORDS][0]))
+  ax.set_ylabel('Second most common word percentage\n'+ knowledgebase[KNOWLEDGEBASE_KEY_WORDS][1])
+  ax.set_zlabel('Third most common word percentage\n'+ knowledgebase[KNOWLEDGEBASE_KEY_WORDS][2])
   
   ax.plot(matrix[:,0], matrix[:,1], matrix[:,2], 'o', c='b')
   ax.plot([input_frequency[0]], [input_frequency[1]], [input_frequency[2]], 'o', c='r') #ax.plot expects an array, not a single item
