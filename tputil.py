@@ -20,6 +20,8 @@ MOST_COMMON_NUMBER = 50
 
 KNOWLEDGEBASE_KEY_WORDS = 'keywords'
 KNOWLEDGEBASE_KEY_FREQS = 'freqs'
+KNOWLEDGEBASE_KEY_STOPMODE = 'stopmode'
+KNOWLEDGEBASE_KEY_SMLANGUAGE = 'stopmodeLanguage'
 
 # error numbers
 FILE_NOT_FOUND = 11
@@ -84,7 +86,7 @@ def add_texts():
   
 
 # compiles the database.dat file and adds it to the knowledge base  
-def compile_database(stop_mode = False, language = 'english'):
+def compile_database(stop_mode = False, sm_language = 'english'):
   if not os.path.isfile(DATABASE_FILE):
     print("[ERROR]: No database found. Please run compile-database first.")
     sys.exit(NO_DATABASE) # Finish with database error
@@ -94,7 +96,7 @@ def compile_database(stop_mode = False, language = 'english'):
   database.close()
   
   texts = rawtext.split(DATABASE_SEPARATOR)  
-  freq = freqdist_text(rawtext, stop_mode, language)
+  freq = freqdist_text(rawtext, stop_mode, sm_language)
   
   # the dict, which will store our knowledge about the author
   knowledgebase = {}
@@ -107,6 +109,9 @@ def compile_database(stop_mode = False, language = 'english'):
     keywords[i] = keys[i][0]
   
   knowledgebase[KNOWLEDGEBASE_KEY_WORDS] = keywords.tolist()
+  knowledgebase[KNOWLEDGEBASE_KEY_STOPMODE] = stop_mode
+  if stop_mode:
+    knowledgebase[KNOWLEDGEBASE_KEY_SMLANGUAGE] = sm_language
   
   knowledge_freqs = []
   
@@ -118,7 +123,7 @@ def compile_database(stop_mode = False, language = 'english'):
     
     if length > 0:
       iterator += 1
-      frequency = get_text_frequency(text, keywords)
+      frequency = get_text_frequency(text, knowledgebase)
       
       knowledge_freqs.append(frequency.tolist())
       print('%d text(s) processed.'%iterator, end='\r')
@@ -148,14 +153,16 @@ def get_knowledgebase():
   
   return knowledgebase
   
-def freqdist_text(text, stop_mode = False, language = 'english'):
+def freqdist_text(text, stop_mode, language):
   word_tokenizer = nltk.RegexpTokenizer(r'\w\w+') # throws away one letter words
+  
+  tokens = word_tokenizer.tokenize(text)
   
   if(stop_mode):
     stop = stopwords.words(language)
-    filtered_text = [w for w in text.lower().split() if w not in stop]
-    text = ''.join(filtered_text)
-  tokens = word_tokenizer.tokenize(text)
+    filtered_tokens = [w for w in tokens if w not in stop]
+    tokens = filtered_tokens
+  
   freq = nltk.FreqDist(tokens)
   
   return freq
@@ -170,11 +177,14 @@ def purge():
 
 
 # returns the frequency of keywords in text
-def get_text_frequency(text, keywords):
-  length = len(text)
+def get_text_frequency(text, knowledgebase):
+  keywords = knowledgebase[KNOWLEDGEBASE_KEY_WORDS]
+  stop_mode = knowledgebase[KNOWLEDGEBASE_KEY_STOPMODE]
+  sm_language = knowledgebase.get(KNOWLEDGEBASE_KEY_SMLANGUAGE) # None if value doesn't exists
+  length = len(text) # this is the length of the whole text
   if length > 0:
     frequency = numpy.empty(MOST_COMMON_NUMBER)
-    freq = freqdist_text(text)
+    freq = freqdist_text(text, stop_mode, sm_language) # this shortens the text!
     for i in range(0,MOST_COMMON_NUMBER):
       frequency[i] = 100*freq[keywords[i]]/length
   
@@ -183,9 +193,9 @@ def get_text_frequency(text, keywords):
 
 
 # opens a file and returns it's word frequency
-def get_file_frequency(filepath, keywords):
+def get_file_frequency(filepath, knowledgebase):
   input_file = open(filepath,encoding='utf-8')
-  input_frequency = get_text_frequency(input_file.read(), keywords)
+  input_frequency = get_text_frequency(input_file.read(), knowledgebase)
   input_file.close()
   return input_frequency
 
@@ -230,7 +240,7 @@ def plot(filename):
   figure = pyplot.figure()
   ax = figure.add_subplot(111, projection = '3d')
   
-  input_frequency = get_file_frequency(filename, knowledgebase[KNOWLEDGEBASE_KEY_WORDS])
+  input_frequency = get_file_frequency(filename, knowledgebase)
   
   #data = PCA_result(matrix)
   #data[0] = data[1] # amateur solution, but the first PCA result is *always* off

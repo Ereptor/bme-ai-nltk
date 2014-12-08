@@ -5,7 +5,6 @@
 import sys
 import tputil
 import tpcalc
-import numpy
 
 def help():
   print('\nUsage: ' + sys.argv[0] + ' (option)'
@@ -25,8 +24,7 @@ def help():
   
 
 # main function
-if __name__ == '__main__':
-  
+if __name__ == '__main__':  
   if len(sys.argv) == 4 :
     if sys.argv[1] == 'compile-database' and sys.argv[2] == '-sm':
       tputil.compile_database(True, sys.argv[3])

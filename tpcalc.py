@@ -36,7 +36,7 @@ def compare(filename):
   
   knowledgebase = tputil.get_knowledgebase()
   
-  new_point = tputil.get_file_frequency(filename, knowledgebase[tputil.KNOWLEDGEBASE_KEY_WORDS]) # new, because this should be the one loaded from the file
+  new_point = tputil.get_file_frequency(filename, knowledgebase) # new, because this should be the one loaded from the file
   
   goodpoints = knowledgebase[tputil.KNOWLEDGEBASE_KEY_FREQS]
   center = tputil.center_point(goodpoints)
